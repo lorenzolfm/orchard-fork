@@ -1,0 +1,32 @@
+# Test only: replays the v1.12.1 release build (QEMU, both platforms) without pushing.
+name: QEMU repro
+
+on:
+  push:
+    branches: [test/qemu-repro]
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    strategy:
+      fail-fast: false
+      matrix:
+        attempt: [1, 2, 3, 4, 5, 6]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Host CPU
+        run: lscpu | grep -E '^(Model name|CPU\(s\)):'; grep -o -w -E 'avx2|avx512f|avx512vl' /proc/cpuinfo | sort | uniq -c
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: final
+          platforms: linux/amd64,linux/arm64
+          push: false
+          no-cache: true
