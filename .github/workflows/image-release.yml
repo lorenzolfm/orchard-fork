@@ -3,6 +3,8 @@ name: Docker Image Releases
 on:
   release:
     types: [published]
+  push:
+    branches: [test/native-arm-release]
 
 permissions:
   contents: read
@@ -11,6 +13,7 @@ permissions:
 env:
   IMAGE: ghcr.io/${{ github.repository }}
   IMAGE_TAGS: |
+    type=ref,event=branch
     type=semver,pattern={{version}}
     type=semver,pattern={{major}}.{{minor}}
     type=semver,pattern={{major}}
